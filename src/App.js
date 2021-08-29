@@ -1,23 +1,35 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect} from 'react';
+import HeaderStatistic from './Header';
+import CountriesListDisplay from './CountriesListDisplay'
+import  {createFilter} from 'react-search-input'
+import './style.css'
+
+const KEYS_TO_FILTERS = ['Country']
 
 function App() {
+  const [ serverData, setServerData ]  = useState(null)
+  const [search, setSearch] = useState('')
+  useEffect(()=>{
+      fetch("https://api.covid19api.com/summary")
+         .then(res => res.json())
+         .then((data) => {
+            setServerData(data)
+         })
+
+  },[])
+  const filteredData = serverData ?  serverData.Countries.filter(createFilter(search, KEYS_TO_FILTERS)) : null;
+  const data = search ? filteredData : (serverData ? serverData.Countries : null)
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      
+      <div>
+          <HeaderStatistic searchUpdated = {setSearch}/>
+       </div>
+      <div className={'row'}>
+         <CountriesListDisplay examples = {data} />
+         
+      </div>
+       
     </div>
   );
 }
